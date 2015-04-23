@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="start_marker">Start marker</string>
+    <string name="end_marker">End marker</string>
+    <string name="rewind">Rewind</string>
+    <string name="play">Play</string>
+    <string name="stop">Stop</string>
+    <string name="ffwd">Fast forward</string>
+    <string name="start_label">Start:</string>
+    <string name="end_label">End:</string>
+    <string name="progress_dialog_loading">Loading...</string>
+    <string name="time_seconds">seconds</string>
+</resources>

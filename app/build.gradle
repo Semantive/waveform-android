@@ -1,0 +1,37 @@
+apply plugin: 'com.android.application'
+apply plugin: 'retrolambda'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "21.1.2"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId "com.semantive.waveform.waveformandroid"
+        minSdkVersion 16
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:22.0.0'
+}
+
+retrolambda {
+    jdk System.getenv("JAVA8_HOME")
+    oldJdk System.getenv("JAVA7_HOME")
+    javaVersion JavaVersion.VERSION_1_7
+}
