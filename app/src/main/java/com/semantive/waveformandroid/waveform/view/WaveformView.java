@@ -202,12 +202,7 @@ public class WaveformView extends View {
     }
 
     public void setZoomLevel(int zoomLevel) {
-        while (mZoomLevel > zoomLevel) {
-            zoomIn();
-        }
-        while (mZoomLevel < zoomLevel) {
-            zoomOut();
-        }
+        mZoomLevel = zoomLevel;
     }
 
     public boolean canZoomIn() {
@@ -354,8 +349,9 @@ public class WaveformView extends View {
                 }
             }
 
+            Paint paint = selectWaveformPaint(i, start);
             // Draw waveform
-            drawWaveform(canvas, i, start, measuredHeight, fractionalSecs, ctr);
+            drawWaveform(canvas, i, start, measuredHeight, ctr, paint);
 
             i++;
         }
@@ -407,13 +403,12 @@ public class WaveformView extends View {
         }
     }
 
-    protected void drawWaveform(final Canvas canvas, final int i, final int start, final int measuredHeight, final double fractionalSecs, final int ctr) {
+    protected void drawWaveform(final Canvas canvas, final int i, final int start, final int measuredHeight, final int ctr, final Paint paint) {
         if (i + start < mSelectionStart || i + start >= mSelectionEnd) {
             drawWaveformLine(canvas, i, 0, measuredHeight,
                     mUnselectedBkgndLinePaint);
         }
 
-        Paint paint = selectWaveformPaint(i, start, fractionalSecs);
         int h = (int) (getScaledHeight(mZoomFactorByZoomLevel[mZoomLevel], start + i) * getMeasuredHeight() / 2);
         drawWaveformLine(
                 canvas, i,
@@ -426,7 +421,7 @@ public class WaveformView extends View {
         }
     }
 
-    protected Paint selectWaveformPaint(final int i, final int start, final double fractionalSecs) {
+    protected Paint selectWaveformPaint(final int i, final int start) {
         Paint paint;
         if (i + start >= mSelectionStart && i + start < mSelectionEnd) {
             paint = mSelectedLinePaint;
@@ -437,7 +432,7 @@ public class WaveformView extends View {
         return paint;
     }
 
-    private float getGain(int i, int numFrames, int[] frameGains) {
+    protected float getGain(int i, int numFrames, int[] frameGains) {
         int x = Math.min(i, numFrames - 1);
         if (numFrames < 2) {
             return frameGains[x];
@@ -452,19 +447,19 @@ public class WaveformView extends View {
         }
     }
 
-    private float getHeight(int i, int numFrames, int[] frameGains, float scaleFactor, float minGain, float range) {
+    protected float getHeight(int i, int numFrames, int[] frameGains, float scaleFactor, float minGain, float range) {
         float value = (getGain(i, numFrames, frameGains) * scaleFactor - minGain) / range;
         if (value < 0.0)
             value = 0.0f;
         if (value > 1.0)
             value = 1.0f;
-        return value * value;
+        return value;
     }
 
     /**
      * Called once when a new sound file is added
      */
-    private void computeDoublesForAllZoomLevels() {
+    protected void computeDoublesForAllZoomLevels() {
         int numFrames = mSoundFile.getNumFrames();
 
         // Make sure the range is no more than 0 - 255
@@ -518,34 +513,48 @@ public class WaveformView extends View {
         mZoomFactorByZoomLevel = new float[4];
 
         float ratio = getMeasuredWidth() / (float) numFrames;
+
         if (ratio < 1) {
-            // fit to screen
             mLenByZoomLevel[0] = Math.round(numFrames * ratio);
             mZoomFactorByZoomLevel[0] = ratio;
-            // normal
+
             mLenByZoomLevel[1] = numFrames;
             mZoomFactorByZoomLevel[1] = 1.0f;
+
+            mLenByZoomLevel[2] = numFrames * 2;
+            mZoomFactorByZoomLevel[2] = 2.0f;
+
+            mLenByZoomLevel[3] = numFrames * 3;
+            mZoomFactorByZoomLevel[3] = 3.0f;
+
             mZoomLevel = 0;
         } else {
-            // normal
             mLenByZoomLevel[0] = numFrames;
             mZoomFactorByZoomLevel[0] = 1.0f;
-            // fit to screen
-            mLenByZoomLevel[1] = Math.round(numFrames * ratio);
-            mZoomFactorByZoomLevel[1] = ratio;
-            mZoomLevel = 1;
+
+            mLenByZoomLevel[1] = numFrames * 2;
+            mZoomFactorByZoomLevel[1] = 2f;
+
+            mLenByZoomLevel[2] = numFrames * 3;
+            mZoomFactorByZoomLevel[2] = 3.0f;
+
+            mLenByZoomLevel[3] = numFrames * 4;
+            mZoomFactorByZoomLevel[3] = 4.0f;
+
+            mZoomLevel = 0;
+            for (int i = 0; i < 4; i++) {
+                if (mLenByZoomLevel[mZoomLevel] - getMeasuredWidth() > 0) {
+                    break;
+                } else {
+                    mZoomLevel = i;
+                }
+            }
         }
-        // 2x
-        mLenByZoomLevel[2] = numFrames * 2;
-        mZoomFactorByZoomLevel[2] = 2.0f;
-        // 4x
-        mLenByZoomLevel[3] = numFrames * 4;
-        mZoomFactorByZoomLevel[3] = 4.0f;
 
         mInitialized = true;
     }
 
-    private float getZoomedInHeight(float zoomLevel, int i) {
+    protected float getZoomedInHeight(float zoomLevel, int i) {
         int f = (int) zoomLevel;
         if (i == 0) {
             return 0.5f * getHeight(0, mSoundFile.getNumFrames(), mSoundFile.getFrameGains(), scaleFactor, minGain, range);
@@ -563,18 +572,18 @@ public class WaveformView extends View {
         return 0;
     }
 
-    private float getZoomedOutHeight(float zoomLevel, int i) {
+    protected float getZoomedOutHeight(float zoomLevel, int i) {
         int f = (int) (i / zoomLevel);
         float x1 = getHeight(f, mSoundFile.getNumFrames(), mSoundFile.getFrameGains(), scaleFactor, minGain, range);
         float x2 = getHeight(f + 1, mSoundFile.getNumFrames(), mSoundFile.getFrameGains(), scaleFactor, minGain, range);
         return 0.5f * (x1 + x2);
     }
 
-    private float getNormalHeight(int i) {
+    protected float getNormalHeight(int i) {
         return getHeight(i, mSoundFile.getNumFrames(), mSoundFile.getFrameGains(), scaleFactor, minGain, range);
     }
 
-    private float getScaledHeight(float zoomLevel, int i) {
+    protected float getScaledHeight(float zoomLevel, int i) {
         if (zoomLevel == 1.0) {
             return getNormalHeight(i);
         } else if (zoomLevel < 1.0) {

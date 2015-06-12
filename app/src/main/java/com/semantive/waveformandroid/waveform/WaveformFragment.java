@@ -354,9 +354,9 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
         mPlayButton = (ImageButton) view.findViewById(R.id.play);
         mPlayButton.setOnClickListener(mPlayListener);
         mRewindButton = (ImageButton) view.findViewById(R.id.rew);
-        mRewindButton.setOnClickListener(mRewindListener);
+        mRewindButton.setOnClickListener(getRewindListener());
         mFfwdButton = (ImageButton) view.findViewById(R.id.ffwd);
-        mFfwdButton.setOnClickListener(mFfwdListener);
+        mFfwdButton.setOnClickListener(getFwdListener());
 
         TextView markStartButton = (TextView) view.findViewById(R.id.mark_start);
         markStartButton.setOnClickListener(mMarkStartListener);
@@ -769,6 +769,8 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
                     newPos = mPlayStartMsec;
                 mPlayer.seekTo(newPos);
             } else {
+                mStartPos = trap(mStartPos - mWaveformView.secondsToPixels(getStep()));
+                updateDisplay();
                 mStartMarker.requestFocus();
                 markerFocus(mStartMarker);
             }
@@ -783,8 +785,10 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
                     newPos = mPlayEndMsec;
                 mPlayer.seekTo(newPos);
             } else {
-                mEndMarker.requestFocus();
-                markerFocus(mEndMarker);
+                mStartPos = trap(mStartPos + mWaveformView.secondsToPixels(getStep()));
+                updateDisplay();
+                mStartMarker.requestFocus();
+                markerFocus(mStartMarker);
             }
         }
     };
@@ -834,5 +838,24 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
     };
 
     protected abstract String getFileName();
-}
 
+    protected OnClickListener getFwdListener() {
+        return mFfwdListener;
+    }
+
+    protected OnClickListener getRewindListener() {
+        return mRewindListener;
+    }
+
+    protected int getStep() {
+        int maxSeconds = (int) mWaveformView.pixelsToSeconds(mWaveformView.maxPos());
+        if (maxSeconds / 3600 > 0) {
+            return 600;
+        } else if (maxSeconds / 1800 > 0) {
+            return 300;
+        } else if (maxSeconds / 300 > 0) {
+            return 60;
+        }
+        return 5;
+    }
+}
