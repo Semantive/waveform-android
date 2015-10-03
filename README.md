@@ -1,6 +1,6 @@
 # Waveform Android 
 
-Waveform Android is an audio visualisation component based on the Ringdroid app: https://code.google.com/p/ringdroid/. It provides easy to use, reusable fragment, which can be integrated into any app. 
+Waveform Android is an audio visualisation component based on the Ringdroid app: https://github.com/google/ringdroid. It provides easy to use, reusable fragment, which can be integrated into any app. 
 
 Waveform Android is memory optimized and can easily handle large audio files. The major change was to completely replace the drawing algorithm. Instead of keeping cached audio values for all zoom levels, I dynamically draw waveform using input values and a scaling factor. Moreover, internal audio representation used by Ringdroid has been cleaned.
 
