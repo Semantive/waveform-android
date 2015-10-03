@@ -8,32 +8,27 @@
     <AbsoluteLayout
             android:layout_width="wrap_content"
             android:layout_height="0px"
-            android:layout_weight="1">
-
-        <ImageView android:id="@+id/bkgnd"
-                   android:layout_width="fill_parent"
-                   android:layout_height="fill_parent"
-                   android:scaleType="centerCrop"
-                   android:src="@drawable/bkgnd" />
+            android:layout_weight="1"
+            android:paddingTop="40dip">
 
         <com.semantive.waveformandroid.waveform.view.WaveformView android:id="@+id/waveform"
-                                    android:layout_width="fill_parent"
-                                    android:layout_height="fill_parent" />
+                                             android:layout_width="fill_parent"
+                                             android:layout_height="fill_parent" />
 
         <com.semantive.waveformandroid.waveform.view.MarkerView android:id="@+id/startmarker"
-                                  android:nextFocusDown="@+id/endmarker"
-                                  android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"
-                                  android:src="@drawable/marker_left"
-                                  android:contentDescription="@string/start_marker" />
+                                             android:nextFocusDown="@+id/endmarker"
+                                             android:layout_width="wrap_content"
+                                             android:layout_height="wrap_content"
+                                             android:src="@drawable/marker_left"
+                                             android:contentDescription="@string/start_marker" />
 
         <com.semantive.waveformandroid.waveform.view.MarkerView android:id="@+id/endmarker"
-                                  android:nextFocusUp="@+id/startmarker"
-                                  android:nextFocusDown="@+id/info"
-                                  android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"
-                                  android:src="@drawable/marker_right"
-                                  android:contentDescription="@string/end_marker" />
+                                             android:nextFocusUp="@+id/startmarker"
+                                             android:nextFocusDown="@+id/info"
+                                             android:layout_width="wrap_content"
+                                             android:layout_height="wrap_content"
+                                             android:src="@drawable/marker_right"
+                                             android:contentDescription="@string/end_marker" />
 
     </AbsoluteLayout>
 
@@ -87,7 +82,7 @@
     <LinearLayout
             style="@style/ToolbarBackground"
             android:layout_width="fill_parent"
-            android:layout_height="62dip"
+            android:layout_height="48dip"
             android:gravity="center_vertical" >
 
         <LinearLayout
@@ -100,43 +95,39 @@
             <TextView
                     android:id="@+id/mark_start"
                     android:text="@string/start_label"
-                    android:textColor="#ffffffff"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
                     android:clickable="true"
                     android:gravity="center"
                     android:layout_width="wrap_content"
-                    android:layout_height="31dip" />
+                    android:layout_height="40dip"
+                    android:textAppearance="?android:textAppearanceSmall"/>
 
             <EditText android:id="@+id/starttext"
-                      android:textSize="11sp"
                       android:inputType="number|numberDecimal"
                       android:layout_marginLeft="10dip"
                       android:layout_marginRight="30dip"
                       android:layout_width="70dip"
-                      android:layout_height="31dip"
+                      android:layout_height="40dip"
                       android:gravity="center"
-                      android:contentDescription="@string/start_label" />
+                      android:contentDescription="@string/start_label"
+                      android:textAppearance="?android:textAppearanceSmall"/>
 
             <TextView
                     android:id="@+id/mark_end"
                     android:text="@string/end_label"
-                    android:textColor="#ffffffff"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
                     android:clickable="true"
                     android:gravity="center"
                     android:layout_width="wrap_content"
-                    android:layout_height="31dip" />
+                    android:layout_height="40dip"
+                    android:textAppearance="?android:textAppearanceSmall"/>
 
             <EditText android:id="@+id/endtext"
-                      android:textSize="11sp"
                       android:inputType="number|numberDecimal"
                       android:layout_width="70dip"
-                      android:layout_height="31dip"
+                      android:layout_height="40dip"
                       android:layout_marginLeft="10dip"
                       android:gravity="center"
-                      android:contentDescription="@string/end_label" />
+                      android:textAppearance="?android:textAppearanceSmall"
+                      android:contentDescription="@string/end_label"/>
 
         </LinearLayout>
 

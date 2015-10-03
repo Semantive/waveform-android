@@ -118,7 +118,6 @@ public class WaveformView extends View {
         mTimecodePaint.setTextSize(12);
         mTimecodePaint.setAntiAlias(true);
         mTimecodePaint.setColor(getResources().getColor(R.color.timecode));
-        mTimecodePaint.setShadowLayer(2, 1, 1, getResources().getColor(R.color.timecode_shadow));
 
         mGestureDetector = new GestureDetector(
                 context,
