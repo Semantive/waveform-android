@@ -26,7 +26,12 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import com.semantive.waveformandroid.R;
+import com.semantive.waveformandroid.waveform.Segment;
 import com.semantive.waveformandroid.waveform.soundfile.CheapSoundFile;
+
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 /**
  * WaveformView is an Android view that displays a visual representation
@@ -87,6 +92,9 @@ public class WaveformView extends View {
     protected float range;
     protected float scaleFactor;
     protected float minGain;
+
+    protected NavigableMap<Double, Segment> segmentsMap;
+    protected Segment nextSegment;
 
     public WaveformView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -158,6 +166,8 @@ public class WaveformView extends View {
         mSelectionEnd = 0;
         mDensity = 1.0f;
         mInitialized = false;
+        segmentsMap = new TreeMap<>();
+        nextSegment = null;
     }
 
     @Override
@@ -296,6 +306,14 @@ public class WaveformView extends View {
         mListener = listener;
     }
 
+    public void setSegments(final List<Segment> segments) {
+        if (segments != null) {
+            for (Segment segment : segments) {
+                segmentsMap.put(segment.getStop(), segment);
+            }
+        }
+    }
+
     public void recomputeHeights(float density) {
         mDensity = density;
         mTimecodePaint.setTextSize((int) (12 * density));
@@ -348,9 +366,8 @@ public class WaveformView extends View {
                 }
             }
 
-            Paint paint = selectWaveformPaint(i, start);
             // Draw waveform
-            drawWaveform(canvas, i, start, measuredHeight, ctr, paint);
+            drawWaveform(canvas, i, start, measuredHeight, ctr, selectWaveformPaint(i, start, fractionalSecs));
 
             i++;
         }
@@ -420,12 +437,35 @@ public class WaveformView extends View {
         }
     }
 
-    protected Paint selectWaveformPaint(final int i, final int start) {
+    protected Paint selectWaveformPaint(final int i, final int start, final double fractionalSecs) {
         Paint paint;
         if (i + start >= mSelectionStart && i + start < mSelectionEnd) {
             paint = mSelectedLinePaint;
         } else {
             paint = mUnselectedLinePaint;
+        }
+
+        if (segmentsMap != null && !segmentsMap.isEmpty()) {
+            if (nextSegment == null) {
+                Double key = segmentsMap.ceilingKey(fractionalSecs);
+                if (key != null) {
+                    nextSegment = segmentsMap.get(segmentsMap.ceilingKey(fractionalSecs));
+                }
+            }
+
+            if (nextSegment != null) {
+                if (nextSegment.getStart().compareTo(fractionalSecs) <= 0 && nextSegment.getStop().compareTo(fractionalSecs) >= 0) {
+                    paint = new Paint();
+                    paint.setAntiAlias(false);
+                    paint.setColor(nextSegment.getColor());
+                    return paint;
+                } else {
+                    Double key = segmentsMap.ceilingKey(fractionalSecs);
+                    if (key != null) {
+                        nextSegment = segmentsMap.get(segmentsMap.ceilingKey(fractionalSecs));
+                    }
+                }
+            }
         }
 
         return paint;

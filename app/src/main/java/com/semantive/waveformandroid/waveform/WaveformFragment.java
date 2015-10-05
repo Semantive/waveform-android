@@ -26,6 +26,7 @@ import com.semantive.waveformandroid.waveform.view.WaveformView;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 
 /*
  * Copyright (C) 2008 Google Inc.
@@ -367,6 +368,7 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
 
         mWaveformView = (WaveformView) view.findViewById(R.id.waveform);
         mWaveformView.setListener(this);
+        mWaveformView.setSegments(getSegments());
 
         mInfo = (TextView) view.findViewById(R.id.info);
         mInfo.setText(mCaption);
@@ -838,6 +840,10 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
     };
 
     protected abstract String getFileName();
+
+    protected List<Segment> getSegments() {
+        return null;
+    }
 
     protected OnClickListener getFwdListener() {
         return mFfwdListener;
