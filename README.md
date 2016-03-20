@@ -32,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.Semantive:waveform-android:v1.0'
+    compile 'com.github.Semantive:waveform-android:v1.2'
 }
 ```
 
@@ -48,6 +48,6 @@ dependencies {
 <dependency>
     <groupId>com.github.Semantive</groupId>
     <artifactId>waveform-android</artifactId>
-    <version>v1.0</version>
+    <version>v1.2</version>
 </dependency>
 ```
