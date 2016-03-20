@@ -1,15 +1,15 @@
-package com.semantive.waveformandroid;
+package com.semantive.example;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import com.semantive.waveformandroid.waveform.Segment;
 import com.semantive.waveformandroid.waveform.WaveformFragment;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

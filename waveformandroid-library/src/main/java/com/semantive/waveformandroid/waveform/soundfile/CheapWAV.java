@@ -19,7 +19,6 @@ package com.semantive.waveformandroid.waveform.soundfile;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileInputStream;
 
 /**
  * CheapWAV represents a standard 16-bit WAV file, splitting it into
