@@ -27,7 +27,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import com.semantive.waveformandroid.R;
 import com.semantive.waveformandroid.waveform.Segment;
-import com.semantive.waveformandroid.waveform.soundfile.CheapSoundFile;
+import com.semantive.waveformandroid.waveform.soundfile.SoundFile;
 
 import java.util.List;
 import java.util.NavigableMap;
@@ -71,7 +71,7 @@ public class WaveformView extends View {
     protected Paint mPlaybackLinePaint;
     protected Paint mTimecodePaint;
 
-    protected CheapSoundFile mSoundFile;
+    protected SoundFile mSoundFile;
     protected int[] mLenByZoomLevel;
     protected float[] mZoomFactorByZoomLevel;
     protected int mZoomLevel;
@@ -195,7 +195,7 @@ public class WaveformView extends View {
         return mSoundFile != null;
     }
 
-    public void setSoundFile(CheapSoundFile soundFile) {
+    public void setSoundFile(SoundFile soundFile) {
         mSoundFile = soundFile;
         mSampleRate = mSoundFile.getSampleRate();
         mSamplesPerFrame = mSoundFile.getSamplesPerFrame();

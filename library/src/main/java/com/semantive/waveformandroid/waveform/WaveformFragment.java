@@ -2,8 +2,6 @@ package com.semantive.waveformandroid.waveform;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -20,12 +18,12 @@ import android.widget.AbsoluteLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import com.semantive.waveformandroid.R;
-import com.semantive.waveformandroid.waveform.soundfile.CheapSoundFile;
+import com.semantive.waveformandroid.waveform.soundfile.SamplePlayer;
+import com.semantive.waveformandroid.waveform.soundfile.SoundFile;
 import com.semantive.waveformandroid.waveform.view.MarkerView;
 import com.semantive.waveformandroid.waveform.view.WaveformView;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 
 /*
@@ -57,7 +55,7 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
     protected long mLoadingLastUpdateTime;
     protected boolean mLoadingKeepGoing;
     protected ProgressDialog mProgressDialog;
-    protected CheapSoundFile mSoundFile;
+    protected SoundFile mSoundFile;
     protected File mFile;
     protected String mFilename;
     protected WaveformView mWaveformView;
@@ -87,7 +85,7 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
     protected int mPlayEndMsec;
     protected Handler mHandler;
     protected boolean mIsPlaying;
-    protected MediaPlayer mPlayer;
+    protected SamplePlayer mPlayer;
     protected boolean mTouchDragging;
     protected float mTouchStart;
     protected int mTouchInitialOffset;
@@ -411,7 +409,7 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
         mProgressDialog.setOnCancelListener((DialogInterface dialog) -> mLoadingKeepGoing = false);
         mProgressDialog.show();
 
-        final CheapSoundFile.ProgressListener listener = (double fractionComplete) -> {
+        final SoundFile.ProgressListener listener = (double fractionComplete) -> {
             long now = System.currentTimeMillis();
             if (now - mLoadingLastUpdateTime > 100) {
                 mProgressDialog.setProgress(
@@ -421,26 +419,12 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
             return mLoadingKeepGoing;
         };
 
-        // Create the MediaPlayer in a background thread
-        new Thread() {
-            public void run() {
-                try {
-                    MediaPlayer player = new MediaPlayer();
-                    player.setDataSource(mFile.getAbsolutePath());
-                    player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    player.prepare();
-                    mPlayer = player;
-                } catch (final java.io.IOException e) {
-                    Log.e(TAG, "Error while creating media player", e);
-                }
-            }
-        }.start();
-
         // Load the sound file in a background thread
         new Thread() {
             public void run() {
                 try {
-                    mSoundFile = CheapSoundFile.create(mFile.getAbsolutePath(), listener);
+                    mSoundFile = SoundFile.create(mFile.getAbsolutePath(), listener);
+                    mPlayer = new SamplePlayer(mSoundFile);
                 } catch (final Exception e) {
                     Log.e(TAG, "Error while loading sound file", e);
                     mProgressDialog.dismiss();
@@ -715,42 +699,16 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
             } else {
                 mPlayEndMsec = mWaveformView.pixelsToMillisecs(mEndPos);
             }
-
-            mPlayStartOffset = 0;
-
-            int startFrame = mWaveformView.secondsToFrames(mPlayStartMsec * 0.001);
-            int endFrame = mWaveformView.secondsToFrames(mPlayEndMsec * 0.001);
-            int startByte = mSoundFile.getSeekableFrameOffset(startFrame);
-            int endByte = mSoundFile.getSeekableFrameOffset(endFrame);
-            if (startByte >= 0 && endByte >= 0) {
-                try {
-                    mPlayer.reset();
-                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    FileInputStream subsetInputStream = new FileInputStream(mFile.getAbsolutePath());
-                    mPlayer.setDataSource(subsetInputStream.getFD(),startByte, endByte - startByte);
-                    mPlayer.prepare();
-                    mPlayStartOffset = mPlayStartMsec;
-                } catch (Exception e) {
-                    Log.e(TAG, "Exception trying to play file subset", e);
-                    mPlayer.reset();
-                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    mPlayer.setDataSource(mFile.getAbsolutePath());
-                    mPlayer.prepare();
-                    mPlayStartOffset = 0;
-                }
-            }
-
-            mPlayer.setOnCompletionListener((MediaPlayer mediaPlayer) -> handlePause());
+            mPlayer.setOnCompletionListener(() -> handlePause());
             mIsPlaying = true;
 
-            if (mPlayStartOffset == 0) {
-                mPlayer.seekTo(mPlayStartMsec);
-            }
+            mPlayer.seekTo(mPlayStartMsec);
             mPlayer.start();
             updateDisplay();
             enableDisableButtons();
         } catch (Exception e) {
-            Log.e(TAG, "Exception while playing file", e);
+            Log.e(TAG, "Error while playing sound file", e);
+            mInfo.setText(e.toString());
         }
     }
 
