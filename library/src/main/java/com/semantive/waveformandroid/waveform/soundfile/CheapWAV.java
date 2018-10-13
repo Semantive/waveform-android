@@ -97,7 +97,7 @@ public class CheapWAV extends CheapSoundFile {
             mChannels = wavFile.getNumChannels();
 
             int gain, value;
-            int[] buffer = new int[getSamplesPerFrame()];
+            int[] buffer = new int[getSamplesPerFrame()*mChannels];
             for (int i = 0; i < mNumFrames; i++) {
                 gain = -1;
                 wavFile.readFrames(buffer, getSamplesPerFrame());
